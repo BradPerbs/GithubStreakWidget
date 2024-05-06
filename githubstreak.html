@@ -1,0 +1,40 @@
+<!-- Commit Streak Widget -->
+<div id="commit-streak">Loading commit streak...</div>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+    const username = urlParams.get('user'); // Get the GitHub username from URL query parameter
+
+    if (!username) {
+        document.getElementById('commit-streak').innerHTML = 'Username not provided!';
+        return;
+    }
+
+    // GitHub API URL to get the commit dates
+    const apiUrl = `https://api.github.com/users/${username}/events`;
+
+    fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+            const commitDates = data
+                .filter(event => event.type === "PushEvent")
+                .map(event => new Date(event.created_at).toDateString());
+
+            const uniqueDates = [...new Set(commitDates)];
+            let streak = 0;
+            let currentDate = new Date();
+
+            for (let i = 0; uniqueDates.includes(currentDate.toDateString()); i++) {
+                streak++;
+                currentDate.setDate(currentDate.getDate() - 1);
+            }
+
+            document.getElementById('commit-streak').innerHTML = `${username} has a ${streak} day commit streak.`;
+        })
+        .catch(error => {
+            document.getElementById('commit-streak').innerHTML = 'Error fetching commit data!';
+            console.error('Error:', error);
+        });
+});
+</script>
