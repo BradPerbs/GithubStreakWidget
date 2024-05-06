@@ -20,18 +20,18 @@
                 const commitEvents = data.filter(event => event.type === "PushEvent");
                 const commitDates = commitEvents.map(event => new Date(event.created_at).toISOString().substring(0, 10));
     
-                let uniqueDates = [...new Set(commitDates)];
-                uniqueDates.sort((a, b) => b.localeCompare(a)); // Ensure the dates are sorted in descending order
+                const uniqueDates = Array.from(new Set(commitDates)).sort((a, b) => new Date(b) - new Date(a));
     
                 let streak = 0;
-                let today = new Date().toISOString().substring(0, 10);
+                let today = new Date(new Date().toISOString().substring(0, 10));
     
                 // Start checking from today and go backwards
                 for (let i = 0; i < uniqueDates.length; i++) {
-                    if (uniqueDates[i] === today) {
+                    const currentDate = new Date(uniqueDates[i]);
+                    const diff = (today - currentDate) / (1000 * 3600 * 24); // difference in days
+    
+                    if (diff === i) {
                         streak++;
-                        let previousDay = new Date(new Date().setDate(new Date().getDate() - i));
-                        today = new Date(previousDay.setDate(previousDay.getDate() - 1)).toISOString().substring(0, 10);
                     } else {
                         break;
                     }
@@ -45,4 +45,5 @@
             });
     });
     </script>
+    
     
